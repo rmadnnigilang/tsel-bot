@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../models/product.dart';
 
 class PaymentScreen extends StatelessWidget {
   final Product product;
 
   const PaymentScreen({super.key, required this.product});
+
+  String formatCurrency(num amount) {
+    final formatter =
+        NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
+    return formatter.format(amount);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,55 +20,69 @@ class PaymentScreen extends StatelessWidget {
       body: Column(
         children: [
           // Header
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.only(
-              top: 48,
-              left: 20,
-              right: 20,
-              bottom: 24,
-            ),
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color(0xFF0A1D51),
-                  Color(0xFF1B1F60),
-                  Color(0xFFB5102A),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text(
-                  "Pembayaran",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
+          Stack(
+            children: [
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.only(
+                  top: 48,
+                  left: 20,
+                  right: 20,
+                  bottom: 24,
+                ),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFF0A1D51),
+                      Color(0xFF1B1F60),
+                      Color(0xFFB5102A),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
+                  borderRadius:
+                      BorderRadius.vertical(bottom: Radius.circular(30)),
                 ),
-                SizedBox(height: 6),
-                Text(
-                  "Konfirmasi dan lanjutkan pembelianmu 💳",
-                  style: TextStyle(color: Colors.white70),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    SizedBox(height: 10),
+                    Text(
+                      "Pembayaran",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 6),
+                    Text(
+                      "Konfirmasi dan lanjutkan pembelianmu 💳",
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              Positioned(
+                top: 48,
+                left: 16,
+                child: GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: const Icon(Icons.arrow_back_ios, color: Colors.white),
+                ),
+              ),
+            ],
           ),
 
-          // Body Content
+          // Body
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Card Produk
-                  // Card Produk
+                  // Kartu produk
                   Card(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -73,7 +94,7 @@ class PaymentScreen extends StatelessWidget {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Ikon di kiri
+                          // Ikon
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
@@ -86,10 +107,9 @@ class PaymentScreen extends StatelessWidget {
                               color: Color(0xFF0A1D51),
                             ),
                           ),
-
                           const SizedBox(width: 16),
 
-                          // Informasi Produk
+                          // Detail produk
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -110,6 +130,47 @@ class PaymentScreen extends StatelessWidget {
                                     color: Colors.black87,
                                   ),
                                 ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text("✅ ", style: TextStyle(fontSize: 12)),
+                                    Expanded(
+                                      child: Text(
+                                        product.kuota,
+                                        style: const TextStyle(fontSize: 13),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text("⏳ ", style: TextStyle(fontSize: 12)),
+                                    Expanded(
+                                      child: Text(
+                                        product.masaAktif,
+                                        style: const TextStyle(fontSize: 13),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                if (product.bonus != null && product.bonus!.isNotEmpty) ...[
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text("🎁 ", style: TextStyle(fontSize: 12)),
+                                      Expanded(
+                                        child: Text(
+                                          product.bonus!,
+                                          style: const TextStyle(fontSize: 13),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                                 const SizedBox(height: 12),
                                 const Divider(),
                                 const SizedBox(height: 6),
@@ -121,7 +182,7 @@ class PaymentScreen extends StatelessWidget {
                                   ),
                                 ),
                                 Text(
-                                  "Rp${product.price}",
+                                  formatCurrency(product.price),
                                   style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w600,
@@ -143,27 +204,45 @@ class PaymentScreen extends StatelessWidget {
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("✅ Pembayaran berhasil!"),
-                            backgroundColor: Colors.green,
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (_) => AlertDialog(
+                            content: Row(
+                              children: const [
+                                CircularProgressIndicator(color: Color(0xFFB5102A)),
+                                SizedBox(width: 20),
+                                Text("Memproses pembayaran..."),
+                              ],
+                            ),
                           ),
                         );
-                        Navigator.pop(context);
+
+                        Future.delayed(const Duration(seconds: 2), () {
+                          Navigator.pop(context); // tutup dialog
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("✅ Pembayaran berhasil!"),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                          Navigator.pop(context); // kembali
+                        });
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFB5102A),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
+                      icon: const Icon(Icons.payment, color: Colors.white),
                       label: const Text(
                         "Bayar Sekarang",
                         style: TextStyle(
                           fontSize: 16,
-                          color: Colors.white,
                           fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(255, 6, 35, 161),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
                         ),
                       ),
                     ),

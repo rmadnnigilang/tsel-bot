@@ -10,3 +10,4 @@ class TopicSelected extends BotEvent {
   TopicSelected(this.topic);
 }
 
+class ShowAllProductsPressed extends BotEvent {}

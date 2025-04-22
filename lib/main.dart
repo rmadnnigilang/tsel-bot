@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tsel_bot/repositories/auth_repository.dart';
 import 'blocs/auth_cubit.dart';
 import 'screens/home_screen.dart';
 import 'repositories/menu_repository.dart';
@@ -18,7 +19,11 @@ class MyApp extends StatelessWidget {
     final menuRepository = MenuRepository();
 
     return MultiBlocProvider(
-      providers: [BlocProvider(create: (_) => AuthCubit())],
+      providers: [
+        BlocProvider(
+          create: (_) => AuthCubit(authRepository: AuthRepository()),
+        ),
+      ],
       child: MaterialApp(
         title: 'Tsel Bot',
         debugShowCheckedModeBanner: false,

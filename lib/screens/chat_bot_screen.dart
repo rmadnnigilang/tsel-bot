@@ -4,6 +4,7 @@ import 'package:tsel_bot/blocs/bot_blocs/bot_bloc.dart';
 import 'package:tsel_bot/blocs/bot_blocs/bot_event.dart';
 import 'package:tsel_bot/blocs/bot_blocs/bot_state.dart';
 import 'package:tsel_bot/blocs/bot_blocs/conversation_step.dart';
+import 'package:tsel_bot/screens/payment_screen.dart';
 import '../models/message.dart';
 
 class ChatBotScreen extends StatelessWidget {
@@ -52,9 +53,9 @@ class _ChatBotViewState extends State<_ChatBotView> {
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Color(0xffff9706),
-                  Color(0xfff70a0b),
-                  Color(0xffd40312),
+                  Color(0xFF0A1D51),
+                  Color(0xFF1B1F60),
+                  Color(0xFFE50914),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -208,23 +209,28 @@ class _ChatBotViewState extends State<_ChatBotView> {
                     final msg = messages[index];
                     final isUser = msg.from == 'user';
 
-                    if (msg.type == 'card') {
-                      final parts = msg.text.split('|');
-                      if (parts.length >= 3) {
-                        return _buildProductCard(
-                          title: parts[0],
-                          description: parts[1],
-                          price: parts[2],
-                        );
-                      } else {
-                        return const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Text(
-                            '⚠️ Format produk tidak valid.',
-                            style: TextStyle(color: Colors.red),
-                          ),
-                        );
-                      }
+                    if (msg.type == MessageType.product) {
+                      final isFirstProduct =
+                          index ==
+                          messages.indexWhere(
+                            (m) => m.type == MessageType.product,
+                          );
+
+                      if (!isFirstProduct) return const SizedBox.shrink();
+
+                      final productMessages =
+                          messages
+                              .where(
+                                (m) =>
+                                    m.type == MessageType.product &&
+                                    m.product != null,
+                              )
+                              .toList();
+
+                      return _buildProductGrid(
+                        productMessages,
+                        isExpanded: false,
+                      );
                     }
 
                     return Align(
@@ -239,9 +245,7 @@ class _ChatBotViewState extends State<_ChatBotView> {
                         constraints: const BoxConstraints(maxWidth: 280),
                         decoration: BoxDecoration(
                           color:
-                              isUser
-                                  ? const Color.fromARGB(255, 247, 10, 10)
-                                  : Colors.white,
+                              isUser ? const Color(0xFF0A1D51) : Colors.white,
                           borderRadius: BorderRadius.circular(18),
                         ),
                         child: Text(
@@ -285,7 +289,10 @@ class _ChatBotViewState extends State<_ChatBotView> {
                           ),
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
-                              colors: [Color(0xffff9706), Color(0xfff70a0b)],
+                              colors: [
+                                Color(0xFF0A1D51),
+                                Color.fromARGB(255, 90, 0, 0),
+                              ],
                             ),
                             borderRadius: BorderRadius.circular(20),
                           ),
@@ -370,85 +377,249 @@ class _ChatBotViewState extends State<_ChatBotView> {
     );
   }
 
-  Widget _buildProductCard({
-    required String title,
-    required String description,
-    required String price,
+  Widget _buildProductGrid(
+    List<Message> productMessages, {
+    bool isExpanded = false,
+    bool isInModal = false,
   }) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 4)),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header dan badge promo
-          Row(
-            children: const [
-              Text(
-                "Best Deal 🔥",
+    final items =
+        isExpanded ? productMessages : productMessages.take(2).toList();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children:
+                items.map((msg) {
+                  final p = msg.product!;
+                  return Container(
+                    width: (MediaQuery.of(context).size.width / 2) - 24,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 6,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Header label
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 6,
+                            horizontal: 8,
+                          ),
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [Color(0xfff70a0b), Color(0xffff9706)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(16),
+                            ),
+                          ),
+                          child: Text(
+                            p.label,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                p.name,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xfff70a0b),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                p.description,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                "Rp${p.price.toString()}",
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.red,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    "✅ ",
+                                    style: TextStyle(fontSize: 12),
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      p.kuota,
+                                      style: const TextStyle(fontSize: 12),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    "⏳ ",
+                                    style: TextStyle(fontSize: 12),
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      p.masaAktif,
+                                      style: const TextStyle(fontSize: 12),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              if (p.bonus != null) ...[
+                                const SizedBox(height: 4),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "🎁 ",
+                                      style: TextStyle(fontSize: 12),
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        p.bonus!,
+                                        style: const TextStyle(fontSize: 12),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                              const SizedBox(height: 12),
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (_) => PaymentScreen(product: p),
+                                      ),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xfff70a0b),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 10,
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    "Beli Paket",
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+          ),
+        ),
+        if (!isInModal && !isExpanded && productMessages.length > 2)
+          Padding(
+            padding: const EdgeInsets.only(left: 12),
+            child: TextButton(
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(24),
+                    ),
+                  ),
+
+                  builder:
+                      (_) => Material(
+                        color: Colors.white,
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(24),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  "Rekomendasi Paket",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                const Text(
+                                  "Pilih paket yang cocok buat kamu! 😍",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                _buildProductGrid(
+                                  productMessages,
+                                  isExpanded: true,
+                                  isInModal: true,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                );
+              },
+              child: const Text(
+                "Tampilkan lebih banyak",
                 style: TextStyle(
-                  color: Colors.red,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Spacer(),
-              Text(
-                "Promo!",
-                style: TextStyle(
-                  color: Colors.orange,
+                  color: Color(0xfff70a0b),
                   fontWeight: FontWeight.w600,
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          // Nama paket
-          Text(
-            title,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              color: Colors.black,
             ),
           ),
-          const SizedBox(height: 4),
-          // Deskripsi
-          Text(description),
-          const SizedBox(height: 6),
-          // Harga
-          Text(
-            "Rp$price",
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.red,
-            ),
-          ),
-          const SizedBox(height: 8),
-          // Tombol beli
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xfff70a0b),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-              child: const Text("Beli Paket"),
-            ),
-          ),
-        ],
-      ),
+      ],
     );
   }
 
@@ -469,7 +640,7 @@ class _ChatBotViewState extends State<_ChatBotView> {
             margin: const EdgeInsets.only(top: 2),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFFFEE2E2),
+              color: const Color.fromARGB(255, 243, 243, 243),
             ),
             child: Icon(icon, size: 18, color: const Color(0xfff70a0b)),
           ),

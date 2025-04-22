@@ -35,12 +35,62 @@ class BotBloc extends Bloc<BotEvent, BotState> {
   }
 
   final List<Product> allProducts = [
-    Product(name: "Streaming 15GB", description: "7 hari aktif", price: 40000),
-    Product(name: "Streaming Unlimited", description: "7 hari", price: 75000),
     Product(
-      name: "Combo 20GB + Telp",
-      description: "Combo paket",
-      price: 55000,
+      name: "Internet Super Seru",
+      description: "10 GB | 28 hari",
+      price: 28000,
+      label: "Best Deal 🔥",
+      kuota: "10 GB kuota utama",
+      masaAktif: "Masa aktif 28 hari",
+      category: "promo",
+    ),
+    Product(
+      name: "SurpriseDeal Internet",
+      description: "14 GB | 30 hari",
+      price: 50000,
+      label: "Lagi Promo!! 🎉",
+      kuota: "10 GB kuota utama",
+      masaAktif: "Masa aktif 30 hari",
+      category: "promo",
+    ),
+    Product(
+      name: "Internet Malam Extra",
+      description: "20 GB | 30 hari",
+      price: 45000,
+      label: "Lagi Promo!! 🎉",
+      kuota: "15 GB kuota utama",
+      masaAktif: "Masa aktif 30 hari",
+      category: "promo",
+    ),
+
+    Product(
+      name: "Combo Seru Unlimited",
+      description: "12 GB + Telp | 30 hari",
+      price: 60000,
+      label: "Best Deal 🔥",
+      kuota: "12 GB kuota utama",
+      masaAktif: "Masa aktif 30 hari",
+      category: "promo",
+    ),
+
+    Product(
+      name: "Streaming Max HD",
+      description: "25 GB | 30 hari",
+      price: 70000,
+      label: "Rekomendasi 🎬",
+      kuota: "25 GB untuk YouTube & Netflix",
+      masaAktif: "Masa aktif 30 hari",
+      category: "promo",
+    ),
+
+    Product(
+      name: "Internet Ekstra Hemat",
+      description: "8 GB | 14 hari",
+      price: 20000,
+      label: "Hemat Banget 💡",
+      kuota: "8 GB kuota utama",
+      masaAktif: "Masa aktif 14 hari",
+      category: "promo",
     ),
   ];
 
@@ -51,8 +101,10 @@ class BotBloc extends Bloc<BotEvent, BotState> {
     Emitter<BotState> emit,
   ) async {
     final input = event.message.toLowerCase();
-    final messages = List<Message>.from(state.messages)
-      ..add(Message(from: 'user', text: event.message));
+    final messages =
+        List<Message>.from(state.messages)
+          ..removeWhere((m) => m.type == MessageType.product)
+          ..add(Message(from: 'user', text: event.message));
 
     // Tampilkan status mengetik...
     emit(state.copyWith(messages: messages, isTyping: true));
@@ -79,10 +131,14 @@ class BotBloc extends Bloc<BotEvent, BotState> {
         break;
 
       case ConversationStep.choosingCategory:
-        String category = input.contains("stream") ? "streaming" : input;
+        String category = input;
+        if (input.contains("promo")) category = "promo";
+        if (input.contains("stream")) category = "streaming";
+        if (input.contains("hemat")) category = "hemat";
+
         final products =
             allProducts
-                .where((p) => p.name.toLowerCase().contains(category))
+                .where((p) => p.category.toLowerCase().contains(category))
                 .toList();
 
         if (products.isEmpty) {
@@ -93,22 +149,34 @@ class BotBloc extends Bloc<BotEvent, BotState> {
             ),
           );
         } else {
-          messages.add(Message(from: 'bot', text: "Berikut pilihannya:"));
+          messages.add(
+            Message(
+              from: 'bot',
+              text:
+                  "Rekomendasi ini aku sesuaikan sama kebiasaan kamu loh! 😉\n\n"
+                  "• Harga favoritmu: Rp20rb–Rp100rb\n"
+                  "• Kuota yang sering dipilih: 10–80 GB\n"
+                  "• Lokasi: Bandung\n"
+                  "• Kamu udah di level Silver 🎉",
+            ),
+          );
+
           for (var p in products) {
             messages.add(
               Message(
                 from: 'bot',
-                text: '', 
-                type: 'card',
+                text: '',
+                type: MessageType.product,
+                product: p,
               ),
             );
           }
-          messages.add(
-            Message(
-              from: 'bot',
-              text: "Silakan ketik nama produk yang kamu pilih",
-            ),
-          );
+          // messages.add(
+          //   Message(
+          //     from: 'bot',
+          //     text: "Silakan ketik nama produk yang kamu pilih",
+          //   ),
+          // );
         }
 
         emit(
@@ -124,7 +192,16 @@ class BotBloc extends Bloc<BotEvent, BotState> {
       case ConversationStep.choosingProduct:
         final selected = allProducts.firstWhere(
           (p) => p.name.toLowerCase().contains(input),
-          orElse: () => Product(name: '', description: '', price: 0),
+          orElse:
+              () => Product(
+                name: '',
+                description: '',
+                price: 0,
+                label: '',
+                kuota: '',
+                masaAktif: '',
+                category: '',
+              ),
         );
 
         if (selected.name.isEmpty) {
@@ -213,5 +290,8 @@ class BotBloc extends Bloc<BotEvent, BotState> {
           ),
         );
     }
+    on<ShowAllProductsPressed>((event, emit) {
+      emit(state.copyWith(isShowingAllProducts: true));
+    });
   }
 }

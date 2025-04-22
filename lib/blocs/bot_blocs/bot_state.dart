@@ -10,6 +10,7 @@ class BotState {
   final String? selectedPayment;
   final bool isTyping;
   final String? selectedTopic;
+  final bool isShowingAllProducts;
 
   BotState({
     this.messages = const [],
@@ -19,6 +20,7 @@ class BotState {
     this.selectedPayment,
     this.isTyping = false,
     this.selectedTopic,
+    this.isShowingAllProducts = false,
   });
 
   BotState copyWith({
@@ -29,6 +31,7 @@ class BotState {
     String? selectedPayment,
     bool? isTyping,
     String? selectedTopic,
+    bool? isShowingAllProducts,
   }) {
     return BotState(
       messages: messages ?? this.messages,
@@ -38,6 +41,7 @@ class BotState {
       selectedPayment: selectedPayment ?? this.selectedPayment,
       isTyping: isTyping ?? this.isTyping,
       selectedTopic: selectedTopic ?? this.selectedTopic,
+      isShowingAllProducts: isShowingAllProducts ?? this.isShowingAllProducts,
     );
   }
 }

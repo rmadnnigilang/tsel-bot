@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tsel_bot/blocs/auth_cubit.dart';
+import 'package:tsel_bot/models/user_model.dart';
 import 'package:tsel_bot/screens/login_screen.dart';
 import '../blocs/menu_bloc/menu_bloc.dart';
 import '../blocs/menu_bloc/menu_event.dart';
@@ -20,8 +21,9 @@ class HomeScreen extends StatelessWidget {
       child: Scaffold(
         backgroundColor: Colors.white,
         body: SafeArea(
-          child: BlocBuilder<AuthCubit, bool>(
-            builder: (context, isLoggedIn) {
+          child: BlocBuilder<AuthCubit, User?>(
+            builder: (context, user) {
+              final isLoggedIn = user != null;
               return Column(
                 children: [
                   Container(
@@ -33,9 +35,9 @@ class HomeScreen extends StatelessWidget {
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          Color(0xFF0A1D51), 
-                          Color(0xFF1B1F60), 
-                          Color(0xFFE50914), 
+                          Color(0xFF0A1D51),
+                          Color(0xFF1B1F60),
+                          Color(0xFFE50914),
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -53,8 +55,8 @@ class HomeScreen extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Row(
-                                children: const [
-                                  Chip(
+                                children: [
+                                  const Chip(
                                     label: Text(
                                       "Halo",
                                       style: TextStyle(
@@ -64,10 +66,10 @@ class HomeScreen extends StatelessWidget {
                                     ),
                                     backgroundColor: Colors.white,
                                   ),
-                                  SizedBox(width: 8),
+                                  const SizedBox(width: 8),
                                   Text(
-                                    "0811 1016 543",
-                                    style: TextStyle(
+                                    user.msisdn ?? '',
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500,
