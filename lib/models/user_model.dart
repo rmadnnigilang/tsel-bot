@@ -1,4 +1,5 @@
 class User {
+  final String id;
   final String msisdn;
   final String name;
   final String token;
@@ -6,6 +7,7 @@ class User {
   final String msisdnType;
 
   User({
+    required this.id,
     required this.msisdn,
     required this.name,
     required this.token,
@@ -15,6 +17,7 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
+      id: json['id'].toString(),
       msisdn: json['msisdn'],
       name: json['name'],
       token: json['token'],

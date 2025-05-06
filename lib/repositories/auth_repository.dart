@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/user_model.dart';
 
 class AuthRepository {
-  final baseUrl = 'http://128.199.129.151:5010';
+  final baseUrl = 'https://llmcore.aspal.in/llm-demo-flask/v-1/login';
 
   Future<User> login(String msisdn) async {
     final response = await http.post(

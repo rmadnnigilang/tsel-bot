@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tsel_bot/screens/budget_package_screen.dart';
+import 'package:tsel_bot/screens/chat_with_ai_screen.dart';
+import 'package:tsel_bot/screens/profile_screen.dart';
 import 'package:tsel_bot/screens/voucher_screen.dart';
 import '../screens/chat_bot_screen.dart';
 import '../screens/featured_package_screen.dart';
@@ -19,12 +21,7 @@ class MenuButton extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(30),
         onTap: () {
-          if (title == 'Bot') {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ChatBotScreen()),
-            );
-          } else if (title == 'Buy Featured Package') {
+          if (title == 'Buy Featured Package') {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const FeaturedPackageScreen()),
@@ -38,6 +35,16 @@ class MenuButton extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const VoucherScreen()),
+            );
+          } else if (title == 'Masic AI') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ChatWithAIScreen()),
+            );
+          } else if (title == 'Profile') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ProfileScreen()),
             );
           } else {
             // todo: handle navigasi lainnya

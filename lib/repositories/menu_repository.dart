@@ -8,8 +8,9 @@ class MenuRepository {
       MenuItem(title: 'Voucher Internet', category: 'Package & Credit'),
       MenuItem(title: 'IndiHome Registration', category: 'IndiHome'),
       MenuItem(title: 'Track IndiHome Order', category: 'IndiHome'),
-      MenuItem(title: 'Buy Orbit Modem', category: 'Other'),
-      MenuItem(title: 'Bot', category: 'Other'),
+      MenuItem(title: 'Masic AI', category: 'Other'),
+      // MenuItem(title: 'Profile', category: 'Other'),
+      // MenuItem(title: 'Bot', category: 'Other'),
     ];
   }
 }
